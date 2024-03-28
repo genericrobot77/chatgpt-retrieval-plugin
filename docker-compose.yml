@@ -44,11 +44,9 @@ services:
     environment:
       GDB_JAVA_OPTS: >-
         -Xmx2g -Xms2g
-        -Denable-context-index=true
-        -Dentity-pool-implementation=transactional
         -Dhealth.max.query.time.seconds=60
         -Dgraphdb.append.request.id.headers=true
-        -Dgraphdb.gpt.token=SET YOUR OWN
+        -Dgraphdb.gpt.token=SET_YOUR_OWN
         -Dgraphdb.workbench.importDirectory=/opt/graphdb/home/graphdb-import
     volumes:
       - graphdb_data:/opt/graphdb/home

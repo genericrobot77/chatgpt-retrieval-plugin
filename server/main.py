@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 import uvicorn
+import time
 from fastapi import FastAPI, File, Form, HTTPException, Depends, Body, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
@@ -78,8 +79,11 @@ async def upsert_file(
 async def upsert(
     request: UpsertRequest = Body(...),
 ):
+    start = time.time()
     try:
         ids = await datastore.upsert(request.documents)
+        elapsed = time.time() - start
+        logger.info(f"Inserted new data in: {elapsed:.6f}s.")
         return UpsertResponse(ids=ids)
     except Exception as e:
         logger.error(e)
@@ -93,10 +97,13 @@ async def upsert(
 async def query_main(
     request: QueryRequest = Body(...),
 ):
+    start = time.time()
     try:
         results = await datastore.query(
             request.queries,
         )
+        elapsed = time.time() - start
+        logger.info(f"Queried in: {elapsed:.6f}s.")
         return QueryResponse(results=results)
     except Exception as e:
         logger.error(e)

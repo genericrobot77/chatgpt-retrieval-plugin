@@ -2,6 +2,7 @@ from typing import List
 import openai
 import os
 from loguru import logger
+import time
 
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
@@ -25,11 +26,19 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
     deployment = os.environ.get("OPENAI_EMBEDDINGMODEL_DEPLOYMENTID")
 
     response = {}
-    if deployment == None:
-        response = openai.Embedding.create(input=texts, model="text-embedding-ada-002")
-    else:
-        response = openai.Embedding.create(input=texts, deployment_id=deployment)
-
+    start = time.time()
+    try:
+        if deployment == None:
+            response = openai.Embedding.create(input=texts, model="text-embedding-ada-002")
+        else:
+            response = openai.Embedding.create(input=texts, deployment_id=deployment)
+    except Exception as e:
+        # Catch the exception here and log, as otherwise we'll suppress the message and just get the class.
+        logger.error(e)
+        raise e
+    elapsed = time.time() - start
+    size = len(texts)
+    logger.debug(f"Processed batch of size: {size:.6f} in: {elapsed:.6f}s")
     # Extract the embedding data from the response
     data = response["data"]  # type: ignore
 
@@ -59,19 +68,25 @@ def get_chat_completion(
     # call the OpenAI chat completion API with the given messages
     # Note: Azure Open AI requires deployment id
     response = {}
-    if deployment_id == None:
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=messages,
-        )
-    else:
-        response = openai.ChatCompletion.create(
-            deployment_id = deployment_id,
-            messages=messages,
-        )
-
-
+    start = time.time()
+    try:
+        if deployment_id == None:
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=messages,
+            )
+        else:
+            response = openai.ChatCompletion.create(
+                deployment_id = deployment_id,
+                messages=messages,
+            )
+    except Exception as e:
+        # Catch the exception here and log, as otherwise we'll suppress the message and just get the class.
+        logger.error(e)
+        raise e
     choices = response["choices"]  # type: ignore
     completion = choices[0].message.content.strip()
     logger.info(f"Completion: {completion}")
+    elapsed = time.time() - start
+    logger.debug(f"Processed query in: {elapsed:.6f}s")
     return completion

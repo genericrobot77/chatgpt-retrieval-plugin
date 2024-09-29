@@ -1,0 +1,18 @@
+import jwt
+import datetime
+
+# Replace 'your-secret-key' with the secret_key generated earlier
+SECRET_KEY = 'FWO-cIvc9cMeuwvriN0SXsa-BBzcPHE6uyau2qa4_0w'
+
+# Define token payload
+payload = {
+    'sub': 'user_id_123',  # Subject (usually user ID)
+    'name': 'John Doe',    # Optional data
+    'iat': datetime.datetime.utcnow(),  # Issued at
+    'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Expiration time
+}
+
+# Generate JWT token
+token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+
+print(f"Your JWT bearer token: {token}")

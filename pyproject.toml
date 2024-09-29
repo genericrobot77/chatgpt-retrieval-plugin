@@ -38,6 +38,7 @@ loguru = "^0.7.0"
 elasticsearch = "8.8.2"
 pymongo = "^4.3.3"
 motor = "^3.3.2"
+pyjwt = "^2.9.0"
 
 [tool.poetry.scripts]
 start = "server.main:start"
